@@ -1,0 +1,122 @@
+const reg = /([A-Za-z][^aeou\s])a([wrtzpsdfghjklcvbnm]{0,1})(\s|\.|,|:|!|\?|\)|\]|$)/gm;
+var isparsing = false;
+
+document.addEventListener('DOMContentLoaded', function () {
+    if (isparsing === false) {
+        parse();
+        initMO(document.body);
+    }
+});
+
+browser.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.command == "parse_page_now") {
+        if (isparsing === false) {
+            parse();
+        }
+    }
+});
+
+function parse() {
+    isparsing = true;
+    walk(document.body);
+    isparsing = false;
+}
+
+function walk(node) {
+    if (hasEditableNode(node)) {
+        return;
+    }
+
+    switch (node.nodeType) {
+        case 1: // Element
+        case 9: // Document
+        case 11: // Document fragment
+            for (let i = 0; i < node.childNodes.length; i++) {
+                let child = node.childNodes[i];
+                if (/SCRIPT|STYLE|IMG|NOSCRIPT|TEXTAREA|CODE/i.test(child.nodeName) === false) {
+                    walk(child);
+                }
+            }
+            break;
+        case 3: // Text node
+            aToEr(node);
+            break;
+        default:
+            break;
+    }
+}
+
+function aToEr(node) {
+    let text = node.nodeValue;
+    node.nodeValue = text.replace(reg, "$1er$2$3");
+}
+
+function hasEditableNode(el) {
+    try {
+        var namedNodeMap = el.attributes;
+
+        for (var i = 0; i < namedNodeMap.length; i++) {
+            var attr = namedNodeMap.item(i);
+            if (attr.name === "contenteditable") {
+
+                return true;
+            } else if (attr.name === "class" && attr.value === "notranslate") {
+
+                return true;
+            } else if (attr.name === "translate" && attr.value === "no") {
+
+                return true;
+            } else if (attr.name === "role" && attr.value === "textbox") {
+
+                return true;
+            }
+        }
+    } catch (error) { }
+    return false;
+}
+
+function hasParentEditableNode(el) {
+    if (hasEditableNode(el)) return true;
+    while (el.parentNode) {
+        el = el.parentNode;
+
+        if (hasEditableNode(el))
+            return true;
+    }
+    return false;
+}
+
+function initMO(root) {
+
+    MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+    var observer = new MutationObserver(function (mutations, observer) {
+        //fired when a mutation occurs
+        //console.log(mutations);
+        //var t0 = performance.now();
+        for (var i = 0; i < mutations.length; i++) {
+            for (var j = 0; j < mutations[i].addedNodes.length; j++) {
+                //checkNode(mutations[i].addedNodes[j]);
+                //console.log(mutations[i].addedNodes[j]);
+                if (!hasParentEditableNode(mutations[i].addedNodes[j]))
+                    if (isparsing === false) {
+                        walk(mutations[i].addedNodes[j]);
+                    }
+
+                //var t1 = performance.now();
+                //nmut++;
+                //console.log(nmut + " Call to mutations took " + (t1 - t0) + " milliseconds.")
+            }
+        }
+    });
+    var opts = {
+        characterData: false,
+        childList: true,
+        subtree: true
+    };
+    var observe = function () {
+        observer.takeRecords();
+        observer.observe(root, opts);
+    };
+    observe();
+}

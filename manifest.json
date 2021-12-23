@@ -1,0 +1,51 @@
+{
+  "name": "a2er",
+  "version": "1.0",
+  "manifest_version": 2,
+  "author": "Sebastian Schicho",
+
+  "description": "Replace all words ending with `a` to end with `er`.",
+
+  "icons": {
+    "16": "er.svg",
+    "19": "er.svg",
+    "32": "er.svg",
+    "38": "er.svg",
+    "48": "er.svg",
+    "96": "er.svg",
+    "128": "er.svg"
+  },
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "a2er.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+
+  "commands": {
+    "parse_page_now": {
+      "suggested_key": {
+        "default": "Alt+K",
+        "windows": "Alt+K"
+      },
+      "description": "Manually trigger the conversion to `er`."
+    }
+  }
+}
