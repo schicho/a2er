@@ -1,8 +1,10 @@
-const reg = /([A-Za-z][^aeou\s])a([wrtzpsdfghjklcvbnm]{0,1})(\s|\.|,|:|!|\?|\)|\]|$)/gm;
-var isparsing = false;
+const reg = /([A-Za-z]*[aeiou][a-z]*[^aeou\s])a([wrtzpsdfghjklcvbnm]{0,1})(\s|\.|-|,|:|!|\?|\)|\]|$)/gm;
+
+const sab = new SharedArrayBuffer(1);
+const isParsing = new Uint8Array(sab);
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (isparsing === false) {
+    if (Atomics.load(isParsing, 0) === 0) {
         parse();
         initMO(document.body);
     }
@@ -10,16 +12,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 browser.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.command == "parse_page_now") {
-        if (isparsing === false) {
-            parse();
-        }
+        parse();
     }
 });
 
-function parse() {
-    isparsing = true;
-    walk(document.body);
-    isparsing = false;
+async function parse() {
+    if (Atomics.compareExchange(isParsing, 0, 0, 1) === 0) {
+        //console.log("Parsing.")
+        walk(document.body);
+        await new Promise(r => setTimeout(r, 2000));
+        Atomics.store(isParsing, 0, 0);
+    } else {
+        //console.log("Skipping parsing as it's already been called.");
+    }
 }
 
 function walk(node) {
@@ -75,39 +80,12 @@ function hasEditableNode(el) {
     return false;
 }
 
-function hasParentEditableNode(el) {
-    if (hasEditableNode(el)) return true;
-    while (el.parentNode) {
-        el = el.parentNode;
-
-        if (hasEditableNode(el))
-            return true;
-    }
-    return false;
-}
-
 function initMO(root) {
 
     MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
     var observer = new MutationObserver(function (mutations, observer) {
-        //fired when a mutation occurs
-        //console.log(mutations);
-        //var t0 = performance.now();
-        for (var i = 0; i < mutations.length; i++) {
-            for (var j = 0; j < mutations[i].addedNodes.length; j++) {
-                //checkNode(mutations[i].addedNodes[j]);
-                //console.log(mutations[i].addedNodes[j]);
-                if (!hasParentEditableNode(mutations[i].addedNodes[j]))
-                    if (isparsing === false) {
-                        walk(mutations[i].addedNodes[j]);
-                    }
-
-                //var t1 = performance.now();
-                //nmut++;
-                //console.log(nmut + " Call to mutations took " + (t1 - t0) + " milliseconds.")
-            }
-        }
+        parse();
     });
     var opts = {
         characterData: false,
