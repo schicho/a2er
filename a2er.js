@@ -6,11 +6,11 @@ const isParsing = new Uint8Array(sab);
 var enableReplacement = true;
 
 document.addEventListener('DOMContentLoaded', function () {
-    browser.runtime.sendMessage({
+    chrome.runtime.sendMessage({
         message: "enable_replacement"
     }, function(response) {
         enableReplacement = response.enableReplacement;
-        console.log("received response:", enableReplacement);
+        //console.log("received response:", enableReplacement);
 
         if (Atomics.load(isParsing, 0) === 0) {
             parse();
@@ -19,16 +19,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-browser.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.command == "parse_page_now") {
-        parse();
+        if (enableReplacement) {
+            parse();
+        } else {
+            enableReplacement = true;
+            parse();
+            enableReplacement = false;
+        }
+        
     }
 });
 
 async function parse() {
     if (enableReplacement) {
         if (Atomics.compareExchange(isParsing, 0, 0, 1) === 0) {
-            console.log("Parsing.")
+            //console.log("Parsing.")
             walk(document.body);
             await new Promise(r => setTimeout(r, 2000));
             Atomics.store(isParsing, 0, 0);
