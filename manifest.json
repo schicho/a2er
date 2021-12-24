@@ -5,13 +5,10 @@
   "author": "Sebastian Schicho",
   "description": "Replace all words ending with `a` to end with `er`.",
   "icons": {
-    "16": "er.svg",
-    "19": "er.svg",
-    "32": "er.svg",
-    "38": "er.svg",
-    "48": "er.svg",
-    "96": "er.svg",
-    "128": "er.svg"
+    "32": "icons/er32.png",
+    "48": "icons/er48.png",
+    "96": "icons/er96.png",
+    "128": "icons/er128.png"
   },
   "permissions": [
     "tabs",
@@ -19,13 +16,10 @@
   ],
   "browser_action": {
     "default_icon": {
-      "16": "er.svg",
-      "19": "er.svg",
-      "32": "er.svg",
-      "38": "er.svg",
-      "48": "er.svg",
-      "96": "er.svg",
-      "128": "er.svg"
+      "32": "icons/er32.png",
+      "48": "icons/er48.png",
+      "96": "icons/er96.png",
+      "128": "icons/er128.png"
     },
     "default_title": "a -> er"
   },

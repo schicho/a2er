@@ -1,8 +1,6 @@
 const reg = /([A-Za-z]*[aeiou][a-z]*[^aeou\s])a([wrtzpsdfghjklcvbnm]{0,1})(\s|\.|-|,|:|!|\?|\)|\]|$)/gm;
 
-const sab = new SharedArrayBuffer(1);
-const isParsing = new Uint8Array(sab);
-
+var isParsing = false;
 var enableReplacement = true;
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -12,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
         enableReplacement = response.enableReplacement;
         //console.log("received response:", enableReplacement);
 
-        if (Atomics.load(isParsing, 0) === 0) {
+        if (isParsing === false) {
             parse();
             initMO(document.body);
         }
@@ -34,11 +32,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 async function parse() {
     if (enableReplacement) {
-        if (Atomics.compareExchange(isParsing, 0, 0, 1) === 0) {
+        if (isParsing === false) {
+            isParsing = true;
             //console.log("Parsing.")
             walk(document.body);
             await new Promise(r => setTimeout(r, 2000));
-            Atomics.store(isParsing, 0, 0);
+            isParsing = false;
         } else {
             //console.log("Skipping parsing as it's already been called.");
         }

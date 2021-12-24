@@ -4,31 +4,26 @@ function updateIcon() {
     if (enableReplacement === true) {
         chrome.browserAction.setIcon({
             path: {
-                "16": "er.svg",
-                "19": "er.svg",
-                "32": "er.svg",
-                "38": "er.svg",
-                "48": "er.svg",
-                "96": "er.svg",
-                "128": "er.svg"
-            }
+                "32": "icons/er32.png",
+                "48": "icons/er48.png",
+                "96": "icons/er96.png",
+                "128": "icons/er128.png"
+              },
         });
         chrome.browserAction.setTitle({ title: "a -> er is enabled." });
     } else {
         chrome.browserAction.setIcon({
             path: {
-                "16": "er-off.svg",
-                "96": "er-off.svg",
-                "19": "er-off.svg",
-                "32": "er-off.svg",
-                "38": "er-off.svg",
-                "48": "er-off.svg",
-                "128": "er-off.svg"
-            }
+                "32": "icons/er-off32.png",
+                "48": "icons/er-off48.png",
+                "96": "icons/er-off96.png",
+                "128": "icons/er-off128.png"
+              },
         });
         chrome.browserAction.setTitle({ title: "a -> er is disabled. Press ALT + K to replace without enabling." });
     }
 }
+updateIcon();
 
 function toggleA2er() {
     if (enableReplacement === true) {
