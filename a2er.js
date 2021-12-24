@@ -3,11 +3,20 @@ const reg = /([A-Za-z]*[aeiou][a-z]*[^aeou\s])a([wrtzpsdfghjklcvbnm]{0,1})(\s|\.
 const sab = new SharedArrayBuffer(1);
 const isParsing = new Uint8Array(sab);
 
+var enableReplacement = true;
+
 document.addEventListener('DOMContentLoaded', function () {
-    if (Atomics.load(isParsing, 0) === 0) {
-        parse();
-        initMO(document.body);
-    }
+    browser.runtime.sendMessage({
+        message: "enable_replacement"
+    }, function(response) {
+        enableReplacement = response.enableReplacement;
+        console.log("received response:", enableReplacement);
+
+        if (Atomics.load(isParsing, 0) === 0) {
+            parse();
+            initMO(document.body);
+        }
+    });
 });
 
 browser.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -17,13 +26,15 @@ browser.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 async function parse() {
-    if (Atomics.compareExchange(isParsing, 0, 0, 1) === 0) {
-        //console.log("Parsing.")
-        walk(document.body);
-        await new Promise(r => setTimeout(r, 2000));
-        Atomics.store(isParsing, 0, 0);
-    } else {
-        //console.log("Skipping parsing as it's already been called.");
+    if (enableReplacement) {
+        if (Atomics.compareExchange(isParsing, 0, 0, 1) === 0) {
+            console.log("Parsing.")
+            walk(document.body);
+            await new Promise(r => setTimeout(r, 2000));
+            Atomics.store(isParsing, 0, 0);
+        } else {
+            //console.log("Skipping parsing as it's already been called.");
+        }
     }
 }
 
