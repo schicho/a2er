@@ -1,4 +1,4 @@
-const reg = /([A-Za-z]*[aeiou][a-z]*[^aeou\s])a([wrtzpsdfghjklcvbnm]{0,1})(\s|\.|-|,|:|!|\?|\)|\]|$)/gm;
+const reg = /([A-Za-z]*[aeiou][a-z]*[^aeou\s])ar?([wtzpsdfghjklcvbnm]?)(\s|\.|-|,|:|!|\?|\)|\]|$)/gm;
 
 var isParsing = false;
 var enableReplacement = true;
