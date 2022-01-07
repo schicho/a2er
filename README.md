@@ -9,4 +9,9 @@ Annoyed of Java? Try Javer.
 Going down a Wikipedier rabbithole about a country's locerl florer and fauner while drinking cocer coler just
 became even better!
 
+### Install
+- Firefox: https://addons.mozilla.org/addon/a2er/
+
+
+### Notes
 The parsing and settings code was adapted from https://github.com/m1l/Everything-Metric-Firefox
