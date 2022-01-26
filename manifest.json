@@ -1,6 +1,6 @@
 {
   "name": "a2er",
-  "version": "1.1",
+  "version": "1.2",
   "manifest_version": 2,
   "author": "Sebastian Schicho",
   "description": "Replace all words ending with `a` to end with `er`.",
