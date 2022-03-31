@@ -1,8 +1,29 @@
-var enableReplacement = true;
+function storageGetReplacementWithPromise() {
+    return new Promise(resolve => {
+        chrome.storage.local.get(['doReplace'], result => {
+            resolve(Boolean(result.doReplace));
+        });
+    });
+}
 
-function updateIcon() {
-    if (enableReplacement === true) {
-        chrome.browserAction.setIcon({
+async function storageGetReplacementResponse() {
+    const value = await storageGetReplacementWithPromise();
+    var response = {};
+    response.enableReplacement = value;
+    return response
+}
+
+function storageSetReplacement(value) {
+    chrome.storage.local.set({'doReplace': value}, function(){});
+    if (chrome.runtime.lastError) {
+        console.log('Error setting');
+    }
+}
+
+async function updateIcon() {
+    const isEnabled = await storageGetReplacementWithPromise();
+    if (isEnabled === true) {
+        chrome.action.setIcon({
             path: {
                 "32": "icons/er32.png",
                 "48": "icons/er48.png",
@@ -10,9 +31,9 @@ function updateIcon() {
                 "128": "icons/er128.png"
               },
         });
-        chrome.browserAction.setTitle({ title: "a -> er is enabled." });
+        chrome.action.setTitle({ title: "a -> er is enabled." });
     } else {
-        chrome.browserAction.setIcon({
+        chrome.action.setIcon({
             path: {
                 "32": "icons/er-off32.png",
                 "48": "icons/er-off48.png",
@@ -20,31 +41,26 @@ function updateIcon() {
                 "128": "icons/er-off128.png"
               },
         });
-        chrome.browserAction.setTitle({ title: "a -> er is disabled. Press ALT + K to replace without enabling." });
+        chrome.action.setTitle({ title: "a -> er is disabled. Press ALT + K to replace without enabling." });
     }
 }
-updateIcon();
 
-function toggleA2er() {
-    if (enableReplacement === true) {
-        enableReplacement = false;
-    } else {
-        enableReplacement = true;
-    }
+async function toggleA2er() {
+    const isEnabled = await storageGetReplacementWithPromise();
+    storageSetReplacement(!isEnabled);
     updateIcon();
 }
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if (request.message === "enable_replacement") {
-            var response = {};
-            response.enableReplacement = enableReplacement;
-            sendResponse(response);
+            storageGetReplacementResponse().then(sendResponse);
+            return true;
         }
     }
 );
 
-chrome.browserAction.onClicked.addListener(function(tab){
+chrome.action.onClicked.addListener(function(tab) {
     toggleA2er();
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.reload(tabs[0].id);

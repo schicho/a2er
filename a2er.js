@@ -26,8 +26,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             parse();
             enableReplacement = false;
         }
-        
     }
+    sendResponse({});
 });
 
 async function parse() {

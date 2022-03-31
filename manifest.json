@@ -1,7 +1,7 @@
 {
   "name": "a2er",
   "version": "1.2",
-  "manifest_version": 2,
+  "manifest_version": 3,
   "author": "Sebastian Schicho",
   "description": "Replace all words ending with `a` to end with `er`.",
   "icons": {
@@ -14,7 +14,7 @@
     "tabs",
     "storage"
   ],
-  "browser_action": {
+  "action": {
     "default_icon": {
       "32": "icons/er32.png",
       "48": "icons/er48.png",
@@ -24,9 +24,7 @@
     "default_title": "a -> er"
   },
   "background": {
-    "scripts": [
-      "background.js"
-    ]
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
