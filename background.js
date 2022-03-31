@@ -44,6 +44,7 @@ async function updateIcon() {
         chrome.action.setTitle({ title: "a -> er is disabled. Press ALT + K to replace without enabling." });
     }
 }
+updateIcon();
 
 async function toggleA2er() {
     const isEnabled = await storageGetReplacementWithPromise();
